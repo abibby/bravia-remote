@@ -1,28 +1,78 @@
 import classNames from 'classnames'
 import { h } from 'preact'
-import { useCallback, useRef, useState } from 'preact/hooks'
-import { audio } from '../bravia'
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
+import { audio, sendRemoteCode } from '../bravia'
 import { Click, Swipe, SwipeMove, SwipeStart } from './swipe'
 import styles from './volume.module.css'
 
 h
 
+async function smartSetVolume(volume: number): Promise<void> {
+    const volumeInformation = await audio
+        .getVolumeInformation()
+        .then(v => v.find(v => v.target === 'speaker'))
+    if (volumeInformation === undefined) {
+        throw new Error('no volume')
+    }
+
+    const maxVolume = volumeInformation.maxVolume
+    const currentVolume = volumeInformation.volume
+    const targetVolume = Math.floor(volume * maxVolume)
+
+    await audio.setAudioVolume({
+        target: '',
+        ui: 'on',
+        volume: String(targetVolume),
+    })
+
+    const newVolumeInformation = await audio
+        .getVolumeInformation()
+        .then(v => v.find(v => v.target === 'speaker'))
+
+    if (newVolumeInformation?.volume === currentVolume) {
+        for (let i = 0; i < Math.abs(currentVolume - targetVolume); i++) {
+            if (currentVolume < targetVolume) {
+                await sendRemoteCode('VolumeUp')
+            } else {
+                await sendRemoteCode('VolumeDown')
+            }
+        }
+    }
+}
+
 export function Volume() {
     const [volume, setVolume] = useState(0.5)
+    const [maxVolume, setMaxVolume] = useState(100)
     const [touch, setTouch] = useState(0.5)
     const [oldVolume, setOldVolume] = useState(0.5)
 
     const [open, setOpen] = useState(false)
 
+    useEffect(() => {
+        audio.getVolumeInformation().then(v => {
+            const originalVolume = v.find(v => v.target === 'speaker')
+            if (originalVolume !== undefined) {
+                setVolume(originalVolume.volume / originalVolume.maxVolume)
+                setMaxVolume(originalVolume.maxVolume)
+            }
+        })
+    }, [])
+
     const root = useRef<{ base: HTMLElement } | null>(null)
     const click = useCallback(
-        (m: Click) => {
+        async (m: Click) => {
             const rect = root.current?.base?.getBoundingClientRect()
 
             if (rect === undefined) {
                 return
             }
-            setVolume(1 - m.current.y / rect.height)
+            const newVolume = 1 - m.current.y / rect.height
+            setVolume(newVolume)
+            await audio.setAudioVolume({
+                target: '',
+                ui: 'on',
+                volume: String(Math.floor(newVolume * maxVolume)),
+            })
         },
         [root, setVolume],
     )
@@ -44,7 +94,7 @@ export function Volume() {
             }
 
             const newVolume =
-                oldVolume + (m.start.y - m.current.y) / rect.height / 2
+                oldVolume + (m.start.y - m.current.y) / rect.height
             setVolume(clamp(newVolume, 0, 1))
             setTouch(1 - m.current.y / rect.height)
 
@@ -58,7 +108,7 @@ export function Volume() {
         await audio.setAudioVolume({
             target: '',
             ui: 'on',
-            volume: String(Math.floor(volume * 100)),
+            volume: String(Math.floor(volume * maxVolume)),
         })
     }, [volume])
 
@@ -76,8 +126,8 @@ export function Volume() {
             ref={root as any}
         >
             <div class={styles.current}>
-                <div class={styles.value}>{Math.floor(volume * 100)}</div>
                 <div class={styles.background}></div>
+                <div class={styles.value}>{Math.floor(volume * maxVolume)}</div>
             </div>
         </Swipe>
     )

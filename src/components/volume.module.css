@@ -21,6 +21,7 @@
 .open .current {
     position: absolute;
     display: block;
+    overflow: hidden;
     top: calc(100% - var(--touch) * 100%);
     transform: translate(calc(-100% - 10px), -50%);
     color: rgba(var(--surface-contrast), 0.8);
@@ -30,3 +31,44 @@
     font-size: 40px;
     z-index: 10;
 }
+
+.background {
+    transform: translateY(calc(var(--volume) * 100% * -1));
+    /* --height: 8;
+    position: absolute;
+    width: 100%;
+    height: calc(var(--height) * 100%);
+    top: 0;
+    left: 0;
+    z-index: -1;
+    transform: translateY(calc(var(--volume) * (100% / var(--height)) * -1));
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0),
+        rgba(0,0,0,0) 10px,
+        rgba(var(--background-contrast), var(--text-opacity)) 10px,
+        rgba(var(--background-contrast), var(--text-opacity)) 12px
+    ); */
+}
+
+/* .background::after {
+    --color: rgba(var(--background-contrast), var(--text-opacity));
+    position: absolute;
+    content: " ";
+    display: block;
+    top: -10px;
+    left: 0;
+    height: 2px;
+    width: 50%;
+    box-shadow:
+        -10px 10px 0px 0px var(--color),
+        -20px 15px 0px 0px var(--color),
+        -20px 20px 0px 0px var(--color),
+        -20px 25px 0px 0px var(--color),
+        -15px 30px 0px 0px var(--color),
+        -20px 35px 0px 0px var(--color),
+        -20px 40px 0px 0px var(--color),
+        -20px 45px 0px 0px var(--color),
+        -20px 50px 0px 0px var(--color),
+        -10px 55px 0px 0px var(--color);
+} */

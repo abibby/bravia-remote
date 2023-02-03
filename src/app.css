@@ -23,7 +23,9 @@ body {
     
     display: grid;
     grid-template-areas:
-     "d-pad volume"
-     ".     volume";
+        "d-pad   volume"
+        "buttons volume"
+        "settings volume";
+     grid-template-rows: 3fr 2fr 1fr;
      grid-template-columns: auto 50px;
 }
