@@ -1,7 +1,7 @@
-import { bind } from '@zwzn/spicy'
 import classNames from 'classnames'
 import { h } from 'preact'
 import { useCallback, useRef, useState } from 'preact/hooks'
+import { audio } from '../bravia'
 import { Click, Swipe, SwipeMove, SwipeStart } from './swipe'
 import styles from './volume.module.css'
 
@@ -53,6 +53,15 @@ export function Volume() {
         [root, oldVolume, setVolume, setTouch, setOpen],
     )
 
+    const end = useCallback(async () => {
+        setOpen(false)
+        await audio.setAudioVolume({
+            target: '',
+            ui: 'on',
+            volume: String(Math.floor(volume * 100)),
+        })
+    }, [volume])
+
     return (
         <Swipe
             class={classNames(styles.volume, { [styles.open]: open })}
@@ -63,11 +72,11 @@ export function Volume() {
             onSwipeStart={start}
             onSwipeMove={move}
             onClick={click}
-            onSwipe={bind(false, setOpen)}
+            onSwipe={end}
             ref={root as any}
         >
             <div class={styles.current}>
-                <div class={styles.value}>{Math.floor(volume * 50)}</div>
+                <div class={styles.value}>{Math.floor(volume * 100)}</div>
                 <div class={styles.background}></div>
             </div>
         </Swipe>

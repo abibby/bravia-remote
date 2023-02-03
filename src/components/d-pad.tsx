@@ -1,5 +1,6 @@
 import { h } from 'preact'
 import { useCallback } from 'preact/hooks'
+import { sendRemoteCode } from '../bravia'
 import styles from './d-pad.module.css'
 import { Click, Swipe } from './swipe'
 
@@ -7,10 +8,23 @@ h
 
 export function DPad() {
     const swipe = useCallback((s: Swipe) => {
-        console.log(s)
+        switch (s.direction) {
+            case 'up':
+                sendRemoteCode('Up')
+                break
+            case 'down':
+                sendRemoteCode('Down')
+                break
+            case 'left':
+                sendRemoteCode('Left')
+                break
+            case 'right':
+                sendRemoteCode('Right')
+                break
+        }
     }, [])
     const click = useCallback((c: Click) => {
-        console.log(c)
+        sendRemoteCode('Confirm')
     }, [])
     return (
         <Swipe class={styles.dPad} onSwipe={swipe} onClick={click}>
