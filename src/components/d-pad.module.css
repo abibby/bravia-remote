@@ -1,0 +1,35 @@
+.dPad {
+    grid-area: d-pad;
+    position: relative;
+    border:  solid 1px rgb(var(--background-contrast), var(--text-opacity));
+}
+
+.up,.down,.left,.right{
+    position: absolute;
+    background-color: rgb(var(--background-contrast), var(--text-opacity));
+}
+.up,.down {
+    width: 1px;
+    height: 30%;
+
+    left: 50%;
+}
+.left,.right {
+    width: 30%;
+    height: 1px;
+
+    top: 50%;
+}
+.up {
+    top: 5%;
+}
+.down {
+    bottom: 5%;
+}
+
+.left {
+    left: 5%;
+}
+.right {
+    right: 5%;
+}

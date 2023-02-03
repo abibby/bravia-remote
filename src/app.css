@@ -1,0 +1,29 @@
+:root {
+    --background: 0,0,0;
+    --background-contrast: 255, 255, 255;
+
+    --surface: 0,0,0;
+    --surface-contrast: 255, 255, 255;
+
+    --text-opacity: 30%;
+}
+
+body {
+    background-color: rgb(var(--background));
+    color: rgba(var(--background-contrast), var(--text-opacity));
+    font-family: monospace;
+}
+
+#app {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    
+    display: grid;
+    grid-template-areas:
+     "d-pad volume"
+     ".     volume";
+     grid-template-columns: auto 50px;
+}

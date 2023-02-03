@@ -1,0 +1,32 @@
+.volume {
+    grid-area: volume;
+    position: relative;
+    border:  solid 1px rgba(var(--background-contrast), var(--text-opacity));
+}
+
+.volume::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    background-color: rgba(var(--background-contrast), var(--text-opacity));
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(var(--volume) * 100%);
+}
+
+.current {
+    display: none;
+}
+.open .current {
+    position: absolute;
+    display: block;
+    top: calc(100% - var(--touch) * 100%);
+    transform: translate(calc(-100% - 10px), -50%);
+    color: rgba(var(--surface-contrast), 0.8);
+    background-color: rgb(var(--surface));
+    border: solid 1px rgba(var(--surface-contrast), 0.8);;
+    padding: 10px;
+    font-size: 40px;
+    z-index: 10;
+}
