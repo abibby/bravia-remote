@@ -68,11 +68,7 @@ export function Volume() {
             }
             const newVolume = 1 - m.current.y / rect.height
             setVolume(newVolume)
-            await audio.setAudioVolume({
-                target: '',
-                ui: 'on',
-                volume: String(Math.floor(newVolume * maxVolume)),
-            })
+            await smartSetVolume(newVolume)
         },
         [root, setVolume],
     )
@@ -105,11 +101,7 @@ export function Volume() {
 
     const end = useCallback(async () => {
         setOpen(false)
-        await audio.setAudioVolume({
-            target: '',
-            ui: 'on',
-            volume: String(Math.floor(volume * maxVolume)),
-        })
+        await smartSetVolume(volume)
     }, [volume])
 
     return (
