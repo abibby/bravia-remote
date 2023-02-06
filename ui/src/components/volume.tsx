@@ -49,13 +49,33 @@ export function Volume() {
     const [open, setOpen] = useState(false)
 
     useEffect(() => {
-        audio.getVolumeInformation().then(v => {
-            const originalVolume = v.find(v => v.target === 'speaker')
-            if (originalVolume !== undefined) {
-                setVolume(originalVolume.volume / originalVolume.maxVolume)
-                setMaxVolume(originalVolume.maxVolume)
-            }
-        })
+        function updateVolume() {
+            audio.getVolumeInformation().then(v => {
+                const originalVolume = v.find(v => v.target === 'speaker')
+                if (originalVolume !== undefined) {
+                    setMaxVolume(originalVolume.maxVolume)
+                    const newVolume =
+                        originalVolume.volume / originalVolume.maxVolume
+                    setVolume(volume => {
+                        if (
+                            Math.abs(volume - newVolume) *
+                                originalVolume.maxVolume >
+                            1
+                        ) {
+                            return newVolume
+                        }
+                        return volume
+                    })
+                }
+            })
+        }
+        updateVolume()
+
+        const cancel = setInterval(updateVolume, 10000)
+
+        return () => {
+            clearInterval(cancel)
+        }
     }, [])
 
     const root = useRef<{ base: HTMLElement } | null>(null)
