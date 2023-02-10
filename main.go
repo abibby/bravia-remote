@@ -7,18 +7,20 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"path"
 	"time"
 
 	"github.com/abibby/bravia-remote/ui"
 	"github.com/abibby/fileserver"
 	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
 )
 
-var ip = "192.168.0.33"
-var psk = "1830"
+// var ip = "192.168.0.33"
+// var psk = "1830"
 
-func proxyAPI(client *http.Client) http.HandlerFunc {
+func proxyAPI(client *http.Client, ip, psk string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_, service := path.Split(r.URL.Path)
 		req, err := http.NewRequest("POST", fmt.Sprintf("http://%s/sony/%s", ip, service), r.Body)
@@ -55,6 +57,11 @@ func proxyAPI(client *http.Client) http.HandlerFunc {
 }
 
 func main() {
+	godotenv.Load("./.env")
+
+	var ip = os.Getenv("TV_IP")
+	var psk = os.Getenv("TV_PSK")
+
 	client := &http.Client{
 		Timeout: time.Second * 5,
 	}
@@ -97,7 +104,7 @@ func main() {
 			conn.Write(append(p, '\n'))
 		}
 	})
-	http.Handle("/sony/", proxyAPI(client))
+	http.Handle("/sony/", proxyAPI(client, ip, psk))
 	http.Handle("/", fileserver.WithFallback(ui.Content, "dist", "index.html", nil))
 
 	log.Print("Listening at http://localhost:8087")
