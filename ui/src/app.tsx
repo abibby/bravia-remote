@@ -5,7 +5,6 @@ import { sendRemoteCode } from './bravia'
 import { getApplicationList, setActiveApp } from './bravia/appControl'
 import { Buttons } from './components/buttons'
 import { DPad } from './components/d-pad'
-import { Settings } from './components/settings'
 import { Volume } from './components/volume'
 
 h
@@ -40,9 +39,19 @@ function App() {
                 <button onClick={bind('Pause', sendRemoteCode)}>Pause</button>
                 <button onClick={bind('Home', sendRemoteCode)}>Home</button>
             </Buttons>
-            <Settings />
+            {/* <Settings /> */}
         </Fragment>
     )
 }
 
 render(<App />, document.getElementById('app')!)
+
+const ws = new WebSocket(`ws://${location.host}/sony/simple-ip`)
+// Connection opened
+ws.addEventListener('open', event => {
+    ws.send('*SCPOWR0000000000000000')
+})
+
+ws.addEventListener('message', e => {
+    console.log(e.data)
+})

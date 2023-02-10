@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import { h } from 'preact'
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 import { audio, sendRemoteCode } from '../bravia'
+import { sleep } from '../utils/sleep'
 import { Click, Swipe, SwipeMove, SwipeStart } from './swipe'
 import styles from './volume.module.css'
 
@@ -36,6 +37,7 @@ async function smartSetVolume(volume: number): Promise<void> {
             } else {
                 await sendRemoteCode('VolumeDown')
             }
+            await sleep(300)
         }
     }
 }
@@ -71,7 +73,7 @@ export function Volume() {
         }
         updateVolume()
 
-        const cancel = setInterval(updateVolume, 10000)
+        const cancel = setInterval(updateVolume, 10_000)
 
         return () => {
             clearInterval(cancel)

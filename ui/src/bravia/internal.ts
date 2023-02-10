@@ -1,5 +1,3 @@
-import { getGlobalState } from '../hooks/use-global-state'
-
 interface RPCCall {
     method: string
     id: number
@@ -21,14 +19,8 @@ export async function braviaAPI<TResult>(
     serviceName: string,
     body: RPCCall,
 ): Promise<RPCResponse<TResult>> {
-    const ip = await getGlobalState('ip')
-    const psk = await getGlobalState('psk')
-
-    const response = await fetch(`http://${ip}/sony/${serviceName}`, {
+    const response = await fetch(`/sony/${serviceName}`, {
         method: 'POST',
-        headers: {
-            'X-Auth-PSK': String(psk),
-        },
         body: JSON.stringify(body),
     })
 

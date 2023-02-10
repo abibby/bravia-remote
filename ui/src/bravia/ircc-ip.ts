@@ -1,5 +1,3 @@
-import { getGlobalState } from '../hooks/use-global-state'
-
 const codes = {
     Power: 'AAAAAQAAAAEAAAAVAw==',
     Input: 'AAAAAQAAAAEAAAAlAw==',
@@ -50,17 +48,13 @@ const codes = {
 }
 
 export async function sendRemoteCode(command: keyof typeof codes) {
-    const ip = await getGlobalState('ip')
-    const psk = await getGlobalState('psk')
-
-    await fetch(`http://${ip}/sony/IRCC`, {
+    await fetch(`/sony/IRCC`, {
         credentials: 'omit',
         headers: {
             Accept: '*/*',
             'Accept-Language': 'en-US,en;q=0.5',
             'Content-Type': 'text/xml; charset=UTF-8',
             SOAPAction: '"urn:schemas-sony-com:service:IRCC:1#X_SendIRCC"',
-            'X-Auth-PSK': String(psk),
         },
         referrer: 'http://www.aczoom.com/',
         body: `<?xml version="1.0"?>
