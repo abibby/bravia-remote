@@ -99,5 +99,7 @@ func main() {
 	})
 	http.Handle("/sony/", proxyAPI(client))
 	http.Handle("/", fileserver.WithFallback(ui.Content, "dist", "index.html", nil))
+
+	log.Print("Listening at http://localhost:8087")
 	http.ListenAndServe(":8087", nil)
 }

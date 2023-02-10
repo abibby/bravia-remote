@@ -27,7 +27,7 @@ export async function braviaAPI<TResult>(
     return await response.json()
 }
 
-let id = 0
+let id = 1
 
 export function braviaAPIFactory<TArgs extends unknown[], TResult>(
     serviceName: string,

@@ -3,13 +3,19 @@
     
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
 }
 
 .buttons > button {
     background: none;
     border: solid 1px rgba(var(--background-contrast), var(--text-opacity));
     color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+}
+.buttons > button:active {
+    background: rgba(var(--background-contrast), var(--text-opacity));
+    color: rgb(var(--background));
     font-size: inherit;
     font-family: inherit;
 }

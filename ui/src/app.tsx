@@ -6,6 +6,7 @@ import { getApplicationList, setActiveApp } from './bravia/appControl'
 import { Buttons } from './components/buttons'
 import { DPad } from './components/d-pad'
 import { Volume } from './components/volume'
+import { usePictureMute, usePowerStatus } from './hooks/use-simple-ip'
 
 h
 
@@ -26,6 +27,8 @@ async function openWebApp(url: string) {
 }
 
 function App() {
+    const [power, setPower] = usePowerStatus()
+    const [pictureMute, setPictureMute] = usePictureMute()
     return (
         <Fragment>
             <DPad />
@@ -38,6 +41,13 @@ function App() {
                 <button onClick={bind('Plex', openApp)}>Plex</button>
                 <button onClick={bind('Pause', sendRemoteCode)}>Pause</button>
                 <button onClick={bind('Home', sendRemoteCode)}>Home</button>
+
+                <button onClick={bind(!power, setPower)}>
+                    {power ? 'Power Off' : 'Power On'}
+                </button>
+                <button onClick={bind(!pictureMute, setPictureMute)}>
+                    {pictureMute ? 'Screen On' : 'Screen Off'}
+                </button>
             </Buttons>
             {/* <Settings /> */}
         </Fragment>
@@ -45,13 +55,3 @@ function App() {
 }
 
 render(<App />, document.getElementById('app')!)
-
-const ws = new WebSocket(`ws://${location.host}/sony/simple-ip`)
-// Connection opened
-ws.addEventListener('open', event => {
-    ws.send('*SCPOWR0000000000000000')
-})
-
-ws.addEventListener('message', e => {
-    console.log(e.data)
-})

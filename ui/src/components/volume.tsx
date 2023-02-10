@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import { h } from 'preact'
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 import { audio, sendRemoteCode } from '../bravia'
+import { useSimpleIP } from '../hooks/use-simple-ip'
 import { sleep } from '../utils/sleep'
 import { Click, Swipe, SwipeMove, SwipeStart } from './swipe'
 import styles from './volume.module.css'
@@ -51,34 +52,28 @@ export function Volume() {
     const [open, setOpen] = useState(false)
 
     useEffect(() => {
-        function updateVolume() {
-            audio.getVolumeInformation().then(v => {
-                const originalVolume = v.find(v => v.target === 'speaker')
-                if (originalVolume !== undefined) {
-                    setMaxVolume(originalVolume.maxVolume)
-                    const newVolume =
-                        originalVolume.volume / originalVolume.maxVolume
-                    setVolume(volume => {
-                        if (
-                            Math.abs(volume - newVolume) *
-                                originalVolume.maxVolume >
-                            1
-                        ) {
-                            return newVolume
-                        }
-                        return volume
-                    })
+        audio.getVolumeInformation().then(v => {
+            const originalVolume = v.find(v => v.target === 'speaker')
+            if (originalVolume === undefined) {
+                return
+            }
+            setMaxVolume(originalVolume.maxVolume)
+            setVolume(originalVolume.volume / originalVolume.maxVolume)
+        })
+    }, [setVolume, setMaxVolume])
+
+    useSimpleIP(
+        'volume',
+        newVolume => {
+            setVolume(volume => {
+                if (Math.abs(volume * maxVolume - newVolume) > 1) {
+                    return newVolume / maxVolume
                 }
+                return volume
             })
-        }
-        updateVolume()
-
-        const cancel = setInterval(updateVolume, 10_000)
-
-        return () => {
-            clearInterval(cancel)
-        }
-    }, [])
+        },
+        [setVolume, maxVolume],
+    )
 
     const root = useRef<{ base: HTMLElement } | null>(null)
     const click = useCallback(
