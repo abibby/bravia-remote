@@ -21,26 +21,26 @@ async function smartSetVolume(volume: number): Promise<void> {
     const currentVolume = volumeInformation.volume
     const targetVolume = Math.floor(volume * maxVolume)
 
-    await audio.setAudioVolume({
-        target: '',
-        ui: 'on',
-        volume: String(targetVolume),
-    })
+    // await audio.setAudioVolume({
+    //     target: '',
+    //     ui: 'on',
+    //     volume: String(targetVolume),
+    // })
 
-    const newVolumeInformation = await audio
-        .getVolumeInformation()
-        .then(v => v.find(v => v.target === 'speaker'))
+    // const newVolumeInformation = await audio
+    //     .getVolumeInformation()
+    //     .then(v => v.find(v => v.target === 'speaker'))
 
-    if (newVolumeInformation?.volume === currentVolume) {
-        for (let i = 0; i < Math.abs(currentVolume - targetVolume); i++) {
-            if (currentVolume < targetVolume) {
-                await sendRemoteCode('VolumeUp')
-            } else {
-                await sendRemoteCode('VolumeDown')
-            }
-            await sleep(300)
+    // if (newVolumeInformation?.volume === currentVolume) {
+    for (let i = 0; i < Math.abs(currentVolume - targetVolume) * 2; i++) {
+        if (currentVolume < targetVolume) {
+            await sendRemoteCode('VolumeUp')
+        } else {
+            await sendRemoteCode('VolumeDown')
         }
+        await sleep(300)
     }
+    // }
 }
 
 export function Volume() {

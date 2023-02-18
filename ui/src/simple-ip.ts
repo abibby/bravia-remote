@@ -44,72 +44,81 @@ export type SimpleIPEventMap = {
 }
 
 export class SimpleIP extends EventTarget<SimpleIPEventMap> {
-    public readonly ready: Promise<void>
-
-    private readonly ws: WebSocket
+    private ws: WebSocket | undefined
 
     constructor() {
         super()
 
-        const proto = location.protocol.replace('http', 'ws')
-        this.ws = new WebSocket(`${proto}//${location.host}/sony/simple-ip`)
-        // Connection opened
-        this.ready = new Promise(resolve => {
-            this.ws.addEventListener(
-                'open',
-                () => {
-                    resolve()
-                },
-                { once: true },
-            )
-        })
-
-        this.ws.addEventListener('message', e => {
-            const header = e.data[2]
-            const messageType = e.data.slice(3, 7)
-            const message = e.data.slice(7)
-            this.dispatchEvent(
-                new SimpleIPEvent<string>(header + messageType, message),
+        this.getWS()
+    }
+    private async getWS(): Promise<WebSocket> {
+        if (this.ws === undefined) {
+            const proto = location.protocol.replace('http', 'ws')
+            const ws = new WebSocket(
+                `${proto}//${location.host}/sony/simple-ip`,
             )
 
-            if (header === 'N') {
+            ws.addEventListener('message', e => {
+                const header = e.data[2]
                 const messageType = e.data.slice(3, 7)
                 const message = e.data.slice(7)
+                console.log(e.data)
 
-                switch (messageType) {
-                    case 'POWR':
-                        this.dispatchEvent(
-                            new SimpleIPEvent('power', Number(message) === 1),
-                        )
-                    case 'INPT':
-                        this.dispatchEvent(new SimpleIPEvent('input', message))
-                    case 'VOLU':
-                        this.dispatchEvent(
-                            new SimpleIPEvent('volume', Number(message)),
-                        )
-                    case 'AMUT':
-                        this.dispatchEvent(
-                            new SimpleIPEvent(
-                                'audioMute',
-                                Number(message) === 1,
-                            ),
-                        )
-                    case 'PMUT':
-                        this.dispatchEvent(
-                            new SimpleIPEvent(
-                                'pictureMute',
-                                Number(message) === 1,
-                            ),
-                        )
+                this.dispatchEvent(
+                    new SimpleIPEvent<string>(header + messageType, message),
+                )
+
+                if (header === 'N') {
+                    const messageType = e.data.slice(3, 7)
+                    const message = e.data.slice(7)
+
+                    switch (messageType) {
+                        case 'POWR':
+                            this.dispatchEvent(
+                                new SimpleIPEvent(
+                                    'power',
+                                    Number(message) === 1,
+                                ),
+                            )
+                        case 'INPT':
+                            this.dispatchEvent(
+                                new SimpleIPEvent('input', message),
+                            )
+                        case 'VOLU':
+                            this.dispatchEvent(
+                                new SimpleIPEvent('volume', Number(message)),
+                            )
+                        case 'AMUT':
+                            this.dispatchEvent(
+                                new SimpleIPEvent(
+                                    'audioMute',
+                                    Number(message) === 1,
+                                ),
+                            )
+                        case 'PMUT':
+                            this.dispatchEvent(
+                                new SimpleIPEvent(
+                                    'pictureMute',
+                                    Number(message) === 1,
+                                ),
+                            )
+                    }
                 }
-            }
-        })
+            })
+
+            ws.addEventListener('close', () => {
+                this.ws = undefined
+            })
+            await new Promise(resolve =>
+                ws.addEventListener('open', resolve, { once: true }),
+            )
+            this.ws = ws
+        }
+        return this.ws
     }
 
     public send(message: Commands): Promise<string> {
         return new Promise(async resolve => {
-            await this.ready
-
             this.addEventListener(
                 'A' + message.slice(3, 7),
                 e => {
@@ -119,7 +128,8 @@ export class SimpleIP extends EventTarget<SimpleIPEventMap> {
                     once: true,
                 },
             )
-            this.ws.send(message)
+            const ws = await this.getWS()
+            ws.send(message)
         })
     }
 }

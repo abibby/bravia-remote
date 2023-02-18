@@ -38,6 +38,7 @@ export function usePowerStatus(): [boolean, (status: boolean) => void] {
     return [
         status,
         async status => {
+            setStatus(status)
             if (status) {
                 await simpleIP.send(Commands.SetPowerStatusOn)
             } else {
@@ -59,6 +60,7 @@ export function usePictureMute(): [boolean, (status: boolean) => void] {
     return [
         status,
         async status => {
+            setStatus(status)
             if (status) {
                 await simpleIP.send(Commands.SetPictureMuteOn)
             } else {

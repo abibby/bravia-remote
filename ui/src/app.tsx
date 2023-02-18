@@ -1,6 +1,8 @@
 import { bind } from '@zwzn/spicy'
+import classNames from 'classnames'
 import { Fragment, h, render } from 'preact'
 import './app.css'
+import styles from './app.module.css'
 import { sendRemoteCode } from './bravia'
 import { getApplicationList, setActiveApp } from './bravia/appControl'
 import { Buttons } from './components/buttons'
@@ -42,7 +44,10 @@ function App() {
                 <button onClick={bind('Pause', sendRemoteCode)}>Pause</button>
                 <button onClick={bind('Home', sendRemoteCode)}>Home</button>
 
-                <button onClick={bind(!power, setPower)}>
+                <button
+                    class={classNames({ [styles.powerOff]: !power })}
+                    onClick={bind(!power, setPower)}
+                >
                     {power ? 'Power Off' : 'Power On'}
                 </button>
                 <button onClick={bind(!pictureMute, setPictureMute)}>
