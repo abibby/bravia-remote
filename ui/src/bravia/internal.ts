@@ -20,6 +20,7 @@ export async function braviaAPI<TResult>(
     body: RPCCall,
 ): Promise<RPCResponse<TResult>> {
     const response = await fetch(`/sony/${serviceName}`, {
+        credentials: 'include',
         method: 'POST',
         body: JSON.stringify(body),
     })

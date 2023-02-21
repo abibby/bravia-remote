@@ -49,7 +49,7 @@ const codes = {
 
 export async function sendRemoteCode(command: keyof typeof codes) {
     await fetch(`/sony/IRCC`, {
-        credentials: 'omit',
+        credentials: 'include',
         headers: {
             Accept: '*/*',
             'Accept-Language': 'en-US,en;q=0.5',
