@@ -1,10 +1,5 @@
 import { Inputs, useEffect, useState } from 'preact/hooks'
-import {
-    Commands,
-    SimpleIP,
-    SimpleIPEvent,
-    SimpleIPEventDataTypeMap,
-} from '../simple-ip'
+import { SimpleIP, SimpleIPEvent, SimpleIPEventDataTypeMap } from '../simple-ip'
 
 export const simpleIP = new SimpleIP()
 
@@ -26,46 +21,51 @@ export function useSimpleIP<K extends keyof SimpleIPEventDataTypeMap>(
     }, inputs)
 }
 
-export function usePowerStatus(): [boolean, (status: boolean) => void] {
-    const [status, setStatus] = useState(false)
-    useSimpleIP(
-        'power',
-        power => {
-            setStatus(power)
-        },
-        [setStatus],
-    )
-    return [
-        status,
-        async status => {
-            setStatus(status)
-            if (status) {
-                await simpleIP.send(Commands.SetPowerStatusOn)
-            } else {
-                await simpleIP.send(Commands.SetPowerStatusOff)
-            }
-        },
-    ]
+function factory<K extends keyof SimpleIPEventDataTypeMap>(
+    type: K,
+    get: () => Promise<SimpleIPEventDataTypeMap[K]>,
+    set: (value: SimpleIPEventDataTypeMap[K]) => Promise<void>,
+    defaultValue: SimpleIPEventDataTypeMap[K],
+) {
+    type T = SimpleIPEventDataTypeMap[K]
+
+    return (): [T, (status: T) => void] => {
+        const [status, setStatus] = useState(defaultValue)
+        useEffect(() => {
+            get.call(simpleIP).then(s => setStatus(s))
+        }, [])
+        useSimpleIP(
+            type,
+            value => {
+                setStatus(value)
+            },
+            [setStatus],
+        )
+        return [
+            status,
+            async status => {
+                setStatus(status)
+                await set.call(simpleIP, status)
+            },
+        ]
+    }
 }
 
-export function usePictureMute(): [boolean, (status: boolean) => void] {
-    const [status, setStatus] = useState(false)
-    useSimpleIP(
-        'pictureMute',
-        muted => {
-            setStatus(muted)
-        },
-        [setStatus],
-    )
-    return [
-        status,
-        async status => {
-            setStatus(status)
-            if (status) {
-                await simpleIP.send(Commands.SetPictureMuteOn)
-            } else {
-                await simpleIP.send(Commands.SetPictureMuteOff)
-            }
-        },
-    ]
-}
+export const usePowerStatus = factory(
+    'power',
+    simpleIP.getPowerStatus,
+    simpleIP.setPowerStatus,
+    false,
+)
+export const usePictureMute = factory(
+    'pictureMute',
+    simpleIP.getPictureMute,
+    simpleIP.setPictureMute,
+    false,
+)
+export const useVolume = factory(
+    'volume',
+    simpleIP.getVolume,
+    simpleIP.setVolume,
+    0,
+)

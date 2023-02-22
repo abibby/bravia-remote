@@ -15,6 +15,10 @@
     height: calc(var(--volume) * 100%);
 }
 
+.updating::after {
+    background-color: rgba(var(--background-contrast), calc(var(--text-opacity) * 2));
+}
+
 .current {
     display: none;
 }

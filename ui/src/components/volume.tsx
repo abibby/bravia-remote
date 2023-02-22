@@ -48,6 +48,7 @@ export function Volume() {
     const [maxVolume, setMaxVolume] = useState(100)
     const [touch, setTouch] = useState(0.5)
     const [oldVolume, setOldVolume] = useState(0.5)
+    const [updatingVolume, setUpdatingVolume] = useState(false)
 
     const [open, setOpen] = useState(false)
 
@@ -65,6 +66,9 @@ export function Volume() {
     useSimpleIP(
         'volume',
         newVolume => {
+            if (updatingVolume) {
+                return
+            }
             setVolume(volume => {
                 if (Math.abs(volume * maxVolume - newVolume) > 1) {
                     return newVolume / maxVolume
@@ -72,7 +76,7 @@ export function Volume() {
                 return volume
             })
         },
-        [setVolume, maxVolume],
+        [updatingVolume, setVolume, maxVolume],
     )
 
     const root = useRef<{ base: HTMLElement } | null>(null)
@@ -85,15 +89,15 @@ export function Volume() {
             }
             const newVolume = 1 - m.current.y / rect.height
             setVolume(newVolume)
+            setUpdatingVolume(true)
             await smartSetVolume(newVolume)
+            setUpdatingVolume(false)
         },
         [root, setVolume],
     )
 
     const start = useCallback(
         (m: SwipeStart) => {
-            console.log('start', volume)
-
             setOldVolume(volume)
         },
         [volume, setOldVolume],
@@ -118,12 +122,17 @@ export function Volume() {
 
     const end = useCallback(async () => {
         setOpen(false)
+        setUpdatingVolume(true)
         await smartSetVolume(volume)
+        setUpdatingVolume(false)
     }, [volume])
 
     return (
         <Swipe
-            class={classNames(styles.volume, { [styles.open]: open })}
+            class={classNames(styles.volume, {
+                [styles.open]: open,
+                [styles.updating]: updatingVolume,
+            })}
             style={{
                 '--volume': volume,
                 '--touch': touch,

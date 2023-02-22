@@ -1,17 +1,7 @@
+import AsyncLock from 'async-lock'
 import EventTarget, { Event } from 'event-target-shim'
 
-export enum Commands {
-    SetPowerStatusOn = '*SCPOWR0000000000000001',
-    SetPowerStatusOff = '*SCPOWR0000000000000000',
-    GetPowerStatus = '*SEPOWR################',
-    TogglePowerStatus = '*SEPOWR################',
-    GetAudioVolume = '*SEVOLU################',
-    SetAudioMuteOn = '*SCAMUT0000000000000001',
-    SetAudioMuteOff = '*SCAMUT0000000000000000',
-    GetAudioMute = '*SEAMUT################',
-    SetPictureMuteOn = '*SCPMUT0000000000000001',
-    SetPictureMuteOff = '*SCPMUT0000000000000000',
-}
+const lock = new AsyncLock()
 
 export type SimpleIPEventDataTypeMap = {
     power: boolean
@@ -62,7 +52,6 @@ export class SimpleIP extends EventTarget<SimpleIPEventMap> {
                 const header = e.data[2]
                 const messageType = e.data.slice(3, 7)
                 const message = e.data.slice(7)
-                console.log(e.data)
 
                 this.dispatchEvent(
                     new SimpleIPEvent<string>(header + messageType, message),
@@ -117,12 +106,12 @@ export class SimpleIP extends EventTarget<SimpleIPEventMap> {
         return this.ws
     }
 
-    public send(message: Commands): Promise<string> {
-        return new Promise(async resolve => {
+    private send(message: string): Promise<string> {
+        return lock.acquire('send', async resolve => {
             this.addEventListener(
                 'A' + message.slice(3, 7),
                 e => {
-                    resolve(e.data)
+                    resolve(undefined, e.data)
                 },
                 {
                     once: true,
@@ -131,5 +120,55 @@ export class SimpleIP extends EventTarget<SimpleIPEventMap> {
             const ws = await this.getWS()
             ws.send(message)
         })
+    }
+
+    // enum Commands {
+    //     SetPowerStatusOn = '*SCPOWR0000000000000001',
+    //     SetPowerStatusOff = '*SCPOWR0000000000000000',
+    //     GetPowerStatus = '*SEPOWR################',
+    //     TogglePowerStatus = '*SEPOWR################',
+    //     GetAudioVolume = '*SEVOLU################',
+    //     SetAudioMuteOn = '*SCAMUT0000000000000001',
+    //     SetAudioMuteOff = '*SCAMUT0000000000000000',
+    //     GetAudioMute = '*SEAMUT################',
+    //     SetPictureMuteOn = '*SCPMUT0000000000000001',
+    //     SetPictureMuteOff = '*SCPMUT0000000000000000',
+    //     GetPictureMute = '*SEPMUT################',
+    // }
+    public async setPowerStatus(value: boolean): Promise<void> {
+        if (value) {
+            await this.send('*SCPOWR0000000000000001')
+        } else {
+            await this.send('*SCPOWR0000000000000000')
+        }
+    }
+
+    public async getPowerStatus(): Promise<boolean> {
+        const value = await this.send('*SEPOWR################')
+
+        return Number(value) !== 0
+    }
+
+    public async setPictureMute(value: boolean): Promise<void> {
+        if (value) {
+            await this.send('*SCPMUT0000000000000001')
+        } else {
+            await this.send('*SCPMUT0000000000000000')
+        }
+    }
+
+    public async getPictureMute(): Promise<boolean> {
+        const value = await this.send('*SEPMUT################')
+
+        return Number(value) !== 0
+    }
+
+    public async setVolume(value: number): Promise<void> {
+        await this.send('*SCVOLU' + String(value).padStart(16, '0'))
+    }
+    public async getVolume(): Promise<number> {
+        const value = await this.send('*SEVOLU################')
+
+        return Number(value)
     }
 }
