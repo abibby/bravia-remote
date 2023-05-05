@@ -10,37 +10,44 @@ import styles from './volume.module.css'
 h
 
 async function smartSetVolume(volume: number): Promise<void> {
-    const volumeInformation = await audio
-        .getVolumeInformation()
-        .then(v => v.find(v => v.target === 'speaker'))
-    if (volumeInformation === undefined) {
-        throw new Error('no volume')
-    }
+    const targetVolume = Math.floor(volume * 100)
+    await audio.setAudioVolume({
+        target: '',
+        ui: 'on',
+        volume: String(targetVolume),
+    })
 
-    const maxVolume = volumeInformation.maxVolume
-    const currentVolume = volumeInformation.volume
-    const targetVolume = Math.floor(volume * maxVolume)
-
-    // await audio.setAudioVolume({
-    //     target: '',
-    //     ui: 'on',
-    //     volume: String(targetVolume),
-    // })
-
-    // const newVolumeInformation = await audio
+    // const volumeInformation = await audio
     //     .getVolumeInformation()
     //     .then(v => v.find(v => v.target === 'speaker'))
-
-    // if (newVolumeInformation?.volume === currentVolume) {
-    for (let i = 0; i < Math.abs(currentVolume - targetVolume) * 2; i++) {
-        if (currentVolume < targetVolume) {
-            await sendRemoteCode('VolumeUp')
-        } else {
-            await sendRemoteCode('VolumeDown')
-        }
-        await sleep(300)
-    }
+    // if (volumeInformation === undefined) {
+    //     throw new Error('no volume')
     // }
+
+    // const maxVolume = volumeInformation.maxVolume
+    // const currentVolume = volumeInformation.volume
+    // const targetVolume = Math.floor(volume * maxVolume)
+
+    // // await audio.setAudioVolume({
+    // //     target: '',
+    // //     ui: 'on',
+    // //     volume: String(targetVolume),
+    // // })
+
+    // // const newVolumeInformation = await audio
+    // //     .getVolumeInformation()
+    // //     .then(v => v.find(v => v.target === 'speaker'))
+
+    // // if (newVolumeInformation?.volume === currentVolume) {
+    // for (let i = 0; i < Math.abs(currentVolume - targetVolume) * 2; i++) {
+    //     if (currentVolume < targetVolume) {
+    //         await sendRemoteCode('VolumeUp')
+    //     } else {
+    //         await sendRemoteCode('VolumeDown')
+    //     }
+    //     await sleep(300)
+    // }
+    // // }
 }
 
 export function Volume() {

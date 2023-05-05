@@ -2,34 +2,80 @@
     grid-area: d-pad;
     position: relative;
     border:  solid 1px rgb(var(--background-contrast), var(--text-opacity));
+    
 }
-
-.up,.down,.left,.right{
+.touch .up,
+.touch .down,
+.touch .left,
+.touch .right{
     position: absolute;
     background-color: rgb(var(--background-contrast), var(--text-opacity));
 }
-.up,.down {
+.touch .up,
+.touch .down {
     width: 1px;
     height: 30%;
 
     left: 50%;
 }
-.left,.right {
+.touch .left,
+.touch .right {
     width: 30%;
     height: 1px;
 
     top: 50%;
 }
-.up {
+.touch .up {
     top: 5%;
 }
-.down {
+.touch .down {
     bottom: 5%;
 }
 
-.left {
+.touch .left {
     left: 5%;
 }
-.right {
+.touch .right {
     right: 5%;
+}
+
+.key.dPad {
+    overflow: hidden;
+}
+
+.key .up,
+.key .down,
+.key .left,
+.key .right {
+    --sqrt2: 1.4142135624;
+    position: absolute;
+    width: calc((var(--width) / var(--sqrt2)) * 1px);
+    height: calc((var(--width) / var(--sqrt2)) * 1px);
+    transform-origin: top left;
+    border:  solid 1px rgb(var(--background-contrast), var(--text-opacity));
+}
+.key .up {
+    transform: scaley(calc(var(--height) / var(--width))) rotate(-45deg);
+}
+.key .down {
+    transform: scaley(calc(var(--height) / var(--width))) rotate(-45deg) translate(-100%, 100%);
+}
+
+.key .left {
+    transform: scaley(calc(var(--height) / var(--width))) rotate(-45deg) translate(-100%, 0);
+}
+
+.key .right {
+    transform: scaley(calc(var(--height) / var(--width))) rotate(-45deg) translate(0, 100%);
+}
+
+.key .enter {
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 50%;
+    height: 50%;
+    background-color: rgb(var(--background));
+
+    border:  solid 1px rgb(var(--background-contrast), var(--text-opacity));
 }

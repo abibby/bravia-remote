@@ -1,5 +1,5 @@
 import { h, JSX, RenderableProps } from 'preact'
-import { useCallback, useRef } from 'preact/hooks'
+import { Ref, useCallback, useRef } from 'preact/hooks'
 
 h
 
@@ -34,6 +34,7 @@ type SwipeProps = Omit<
     onSwipeMove?: (move: SwipeMove) => void
     onSwipe?: (swipe: Swipe) => void
     onClick?: (click: Click) => void
+    htmlRef?: Ref<HTMLDivElement> | ((e: HTMLDivElement | null) => void)
 }
 
 export function Swipe(props: RenderableProps<SwipeProps>) {
@@ -120,6 +121,7 @@ export function Swipe(props: RenderableProps<SwipeProps>) {
             onTouchMove={touchMove}
             onTouchEnd={touchEnd}
             onClick={click}
+            ref={props.htmlRef}
         >
             {props.children}
         </div>

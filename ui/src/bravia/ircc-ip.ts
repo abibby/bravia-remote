@@ -47,7 +47,9 @@ const codes = {
     Next: 'AAAAAgAAAJcAAAA9Aw==',
 }
 
-export async function sendRemoteCode(command: keyof typeof codes) {
+export type RemoteCommand = keyof typeof codes
+
+export async function sendRemoteCode(command: RemoteCommand) {
     await fetch(`/sony/IRCC`, {
         credentials: 'include',
         headers: {
