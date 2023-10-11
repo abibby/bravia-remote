@@ -31,7 +31,7 @@ export function DPad() {
     const click = useCallback((c: Click) => {
         sendRemoteCode('Confirm')
     }, [])
-    const touch = useMediaQuery('(hover: none) and (pointer: coarse)')
+    const touch = useMediaQuery('(pointer: coarse)')
 
     const remote = useCallback(
         (key: RemoteCommand, e: Event) => {

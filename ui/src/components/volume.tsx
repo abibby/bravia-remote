@@ -10,44 +10,48 @@ import styles from './volume.module.css'
 h
 
 async function smartSetVolume(volume: number): Promise<void> {
-    const targetVolume = Math.floor(volume * 100)
-    await audio.setAudioVolume({
-        target: '',
-        ui: 'on',
-        volume: String(targetVolume),
-    })
+    // const targetVolume = Math.floor(volume * 100)
+    // await audio.setAudioVolume({
+    //     target: '',
+    //     ui: 'on',
+    //     volume: String(targetVolume),
+    // })
+    for (let i = 0; i < 10; i++) {
+        const volumeInformation = await audio
+            .getVolumeInformation()
+            .then(v => v.find(v => v.target === 'speaker'))
+        if (volumeInformation === undefined) {
+            throw new Error('no volume')
+        }
 
-    // const volumeInformation = await audio
-    //     .getVolumeInformation()
-    //     .then(v => v.find(v => v.target === 'speaker'))
-    // if (volumeInformation === undefined) {
-    //     throw new Error('no volume')
-    // }
+        const maxVolume = volumeInformation.maxVolume
+        const currentVolume = volumeInformation.volume
+        const targetVolume = Math.floor(volume * maxVolume)
+        
+        if (Math.abs(currentVolume - targetVolume) < 1) {
+            return
+        }
+        // await audio.setAudioVolume({
+        //     target: '',
+        //     ui: 'on',
+        //     volume: String(targetVolume),
+        // })
 
-    // const maxVolume = volumeInformation.maxVolume
-    // const currentVolume = volumeInformation.volume
-    // const targetVolume = Math.floor(volume * maxVolume)
+        // const newVolumeInformation = await audio
+        //     .getVolumeInformation()
+        //     .then(v => v.find(v => v.target === 'speaker'))
 
-    // // await audio.setAudioVolume({
-    // //     target: '',
-    // //     ui: 'on',
-    // //     volume: String(targetVolume),
-    // // })
-
-    // // const newVolumeInformation = await audio
-    // //     .getVolumeInformation()
-    // //     .then(v => v.find(v => v.target === 'speaker'))
-
-    // // if (newVolumeInformation?.volume === currentVolume) {
-    // for (let i = 0; i < Math.abs(currentVolume - targetVolume) * 2; i++) {
-    //     if (currentVolume < targetVolume) {
-    //         await sendRemoteCode('VolumeUp')
-    //     } else {
-    //         await sendRemoteCode('VolumeDown')
-    //     }
-    //     await sleep(300)
-    // }
-    // // }
+        // if (newVolumeInformation?.volume === currentVolume) {
+        for (let i = 0; i < Math.abs(currentVolume - targetVolume) * 2; i++) {
+            if (currentVolume < targetVolume) {
+                await sendRemoteCode('VolumeUp')
+            } else {
+                await sendRemoteCode('VolumeDown')
+            }
+            await sleep(300)
+        }
+        // }
+    }
 }
 
 export function Volume() {
