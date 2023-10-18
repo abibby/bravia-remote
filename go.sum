@@ -1,5 +1,7 @@
 github.com/abibby/fileserver v0.0.0-20221208191705-087686654550 h1:UsWK0321m+VxaYzoRMbpCXO4RBgM8lwkX9V1tTojN1w=
 github.com/abibby/fileserver v0.0.0-20221208191705-087686654550/go.mod h1:xHBGw2P5B6OigP/ehSFN0L0SVNJSuGnllCrkfZBEX4s=
+github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
+github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=
 github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
